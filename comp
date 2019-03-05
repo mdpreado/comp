@@ -1,0 +1,29 @@
+import os
+
+methods = ["HF", "MP2", "MP3", "CCSD", "B3LYP", "BLYP", "PBE", "PBEO", "CAM-B3LYP", "SVWN", "QCSID"]
+bases = ["STO-3G", "6-31G"]
+halogens = ["Cl", "I", "Br", "F", "At"]
+
+for method in methods:
+    for base in bases:
+        for i in range(len(halogens)):
+            for j in range(i, len(halogens)):
+                halogen1 = halogens[i]
+                halogen2 = halogens[j]
+                if halogen1 == halogen2:
+                    molecule = halogen1 + "2"
+                else:
+                    molecule = halogen1 + halogen2
+
+                filename = method + "/" + base + "/" + molecule + ".com"
+                directory = os.path.dirname(filename)
+
+                if not os.path.exists(directory):
+                    os.makedirs(directory)
+
+                to_write = "#p " + method + "/" + base + " gfinput iop(6/7=3) 6d opt\n\n" + molecule + "\n\n0 1\n" +\
+                           halogen1 + " 0.0 0.0 0.0\n" + halogen2 + " 0.0 0.0 0.0\n\n"
+
+                file = open(filename, 'w')
+                file.write(to_write)
+                file.close()
