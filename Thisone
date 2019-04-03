@@ -17,15 +17,17 @@ def create_input_files():
                         molecule = halogen1 + "2"
                     else:
                         molecule = halogen1 + halogen2
-
-                    filename = method + "/" + base + "/" + molecule + ".com"
-                    directory = os.path.dirname(filename)
-
-                    if not os.path.exists(directory):
-                        os.makedirs(directory)
-
+                        
                     to_write = "#p " + method + "/" + base + " gfinput iop(6/7=3) 6d opt\n\n" + molecule \
                                + "\n\n0 1\n" + halogen1 + " 0.0 0.0 0.0\n" + halogen2 + " 0.0 0.0 1.0\n\n"
+
+                    filename = method + "/" + base + "/" + molecule + ".com"
+                    if '+' in filename:
+                        filename = filename.replace("+", "_")
+                        
+                    directory = os.path.dirname(filename)
+                    if not os.path.exists(directory):
+                        os.makedirs(directory)
 
                     file = open(filename, 'w')
                     file.write(to_write)
