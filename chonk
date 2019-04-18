@@ -1,0 +1,114 @@
+import os
+import subprocess
+
+methods = ["BLYP"]
+bases = ["6-31G"]
+halogens = ["Cl", "Br", "F"]
+numbers = ["0200", "0400", "0600", "0800", "1000", "1200", "1400", "1600", "1800", "2000", "2200", "2400", "2600", "2800", "3000", "3200", "3400", "3600", "3800", "4000", "4200", "4400", "4600", "4800", "5000", "5200", "5400", "5600", "5800", "6000", "6200", "6400", "6600", "6800", "7000"]
+
+
+def create_input_files():
+    for method in methods:
+        for base in bases:
+            for number in numbers:
+                for i in range(len(halogens)):
+                    for j in range(i, len(halogens)):
+                        halogen1 = halogens[i]
+                        halogen2 = halogens[j]
+                        if halogen1 == halogen2:
+                            molecule = halogen1 + "2"
+                        else:
+                            molecule = halogen1 + halogen2
+
+                        filename = method + "/" + base + "/" + number + "/" + molecule + ".com"
+                        directory = os.path.dirname(filename)
+
+                        if not os.path.exists(directory):
+                            os.makedirs(directory)
+
+                        to_write = "#p " + method + "/" + base + "gfinput" + "IOp(3/76=100000"+number+") IOp(3/77=0720008000) IOp(3/78=0810010000)" + "6d opt freq\n\n" + molecule \
+                                   + "\n\n0 1\n" + halogen1 + " 0.0 0.0 0.0\n" + halogen2 + " 0.0 0.0 1.0\n\n"
+
+                        file = open(filename, 'w')
+                        file.write(to_write)
+                        file.close()
+
+
+def overwrite_inputs():
+    for method in methods:
+        for base in bases:
+            for number in numbers:
+                for i in range(len(halogens)):
+                    for j in range(i, len(halogens)):
+                        halogen1 = halogens[i]
+                        halogen2 = halogens[j]
+                        if halogen1 == halogen2:
+                            molecule = halogen1 + "2"
+                        else:
+                            molecule = halogen1 + halogen2
+
+                        filename = method + "/" + base + "/" + number + "/" + molecule
+                        input_filename = filename + ".com"
+                        output_filename = filename + ".log"
+
+                        file = open(output_filename, "r")
+
+                        text2 = file.read().split("normal coordinates")[1][66:75]
+                        file.close
+                        file = open(output_filename, "r")
+
+                        text = file.read().split("Optimized Parameters")[1][340:346]
+                        file.close
+                        file = open(output_filename, "r")
+                        textA = file.read().split("Job cpu time")[1][30:35]
+                        file.close()
+
+                        text3 = str(text)
+                        text4 = str(text2)
+                        textB = str(textA)
+
+
+                        to_unwrite = text3 + "\n\n" + text4 + "\n\n" + textB
+
+                        f = open(filename+".txt", "w+")
+                        f.write(to_unwrite)
+                        f.close()
+
+
+                        to_write = "#p " + method + "/" + base + "gfinput" + "IOp(3/76=100000"+number+") IOp(3/77=0720008000) IOp(3/78=0810010000)" + "6d opt freq\n\n" + molecule \
+                                       + "\n\n0 1\n" + halogen1 + " 0.0 0.0 0.0\n" + halogen2 + " 0.0 0.0 " + text3 + "\n\n"
+
+                        file = open(input_filename, 'w')
+                        file.write(to_write)
+                        file.close()
+
+
+def run_program():
+    for method in methods:
+        for base in bases:
+            for number in numbers:
+                for i in range(len(halogens)):
+                    for j in range(i, len(halogens)):
+                        halogen1 = halogens[i]
+                        halogen2 = halogens[j]
+                        if halogen1 == halogen2:
+                            molecule = halogen1 + "2"
+                        else:
+                            molecule = halogen1 + halogen2
+
+                        filename = method + "/" + base + "/" + number + "/" + molecule + ".com"
+                        directory = os.path.dirname(filename)
+
+                        bash_command = "g09t " + molecule + ".com"
+                        test_command = "touch lol.txt"
+
+                        os.chdir(directory)
+                        os.system(bash_command)
+                        os.chdir("../..")
+
+
+if __name__ == '__main__':
+    print("Creating input files..")
+    create_input_files()
+    print("Running g09t..")
+    run_program()
